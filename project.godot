@@ -11,14 +11,9 @@ config_version=5
 [application]
 
 config/name="LineArt"
-config/description="A pixelorama Extention (The "
+config/description="A pixelorama Extension (Adds a LineArt ImageEffect)"
 run/main_scene="res://src/Extensions/LineArt/Main.tscn"
-config/features=PackedStringArray("4.2")
-" field are not related to extention system so they can be anything)config/features"=PackedStringArray("4.2", "GL Compatibility")
-
-[autoload]
-
-ExtensionsApi="*res://src/Extensions/LineArt/API/ExtensionsApi.gd"
+config/features=PackedStringArray("4.3", "GL Compatibility")
 
 [rendering]
 
