@@ -1,7 +1,7 @@
 extends Node
 
 var item_id: int
-var lineart_dialog: ImageEffect
+var lineart_dialog: ConfirmationDialog
 var api: Node
 
 # This script acts as a setup for the extension
@@ -14,9 +14,10 @@ func _enter_tree() -> void:
 		# the 3rd argument (in this case "self") will try to call "menu_item_clicked"
 		# (if it is present)
 
-		lineart_dialog = preload(
-			"res://src/Extensions/LineArt/Assets/Dialog/LineArtDialog.tscn"
+		lineart_dialog = load(
+			"res://src/UI/Dialogs/ImageEffects/ImageEffectParent.tscn"
 		).instantiate()
+		lineart_dialog.set_script(load("res://src/Extensions/LineArt/Assets/Dialog/LineArtDialog.gd"))
 		api.dialog.get_dialogs_parent_node().add_child(lineart_dialog)
 
 
@@ -29,5 +30,5 @@ func menu_item_clicked():
 func _exit_tree() -> void:  # Extension is being uninstalled or disabled
 	if api:
 		# remember to remove things that you added using this extension
-		api.menu.remove_menu_item(ExtensionsApi.menu.EFFECTS, item_id)
+		api.menu.remove_menu_item(api.menu.EFFECTS, item_id)
 		lineart_dialog.queue_free()

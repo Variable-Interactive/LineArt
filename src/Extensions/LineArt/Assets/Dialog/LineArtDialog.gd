@@ -5,15 +5,17 @@ var shader: Shader = preload("res://src/Extensions/LineArt/Assets/LineArt.gdshad
 
 var _strength_slider: TextureProgressBar
 var _color_button :ColorPickerButton
+var api: Node
 
 
 func _ready() -> void:
 	super._ready()
+	api = get_node_or_null("/root/ExtensionsApi")
 	var sm := ShaderMaterial.new()
 	sm.shader = shader
 	preview.set_material(sm)
 	# set as in enum
-	_strength_slider = ExtensionsApi.general.create_value_slider()
+	_strength_slider = api.general.create_value_slider()
 	_strength_slider.custom_minimum_size.y = 24
 	_strength_slider.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	_strength_slider.value_changed.connect(_on_strength_value_changed)
@@ -26,12 +28,13 @@ func _ready() -> void:
 	_color_button = ColorPickerButton.new()
 	_color_button.custom_minimum_size.y = 24
 	var _reference_node = find_child("OptionsContainer")
-	_color_button.color_changed.connect(_on_line_color_color_changed)
-	_reference_node.get_parent().add_child(_color_button)
-	_color_button.get_parent().move_child(_color_button, _reference_node.get_index())
-	_reference_node.get_parent().add_child(_strength_slider)
-	_strength_slider.get_parent().move_child(_strength_slider, _reference_node.get_index())
-	animate_panel.add_float_property("Strength", _strength_slider)
+	if _reference_node:
+		_color_button.color_changed.connect(_on_line_color_color_changed)
+		_reference_node.get_parent().add_child(_color_button)
+		_color_button.get_parent().move_child(_color_button, _reference_node.get_index())
+		_reference_node.get_parent().add_child(_strength_slider)
+		_strength_slider.get_parent().move_child(_strength_slider, _reference_node.get_index())
+		animate_panel.add_float_property("Strength", _strength_slider)
 
 
 func _about_to_popup() -> void:
@@ -39,12 +42,12 @@ func _about_to_popup() -> void:
 	super._about_to_popup()
 
 
-func commit_action(cel: Image, project: Project = ExtensionsApi.general.get_global().current_project) -> void:
+func commit_action(cel: Image, project = api.general.get_global().current_project) -> void:
 	var strength = animate_panel.get_animated_value(commit_idx, Animate.STRENGTH)
 	var color = _color_button.color
 	var selection_tex: ImageTexture
 	if selection_checkbox.button_pressed and project.has_selection:
-		var selection: SelectionMap = project.selection_map.return_cropped_copy(project.size)
+		var selection = project.selection_map.return_cropped_copy(project.size)
 		selection_tex = ImageTexture.create_from_image(selection)
 
 	var params := {"strength": strength, "color": color, "selection": selection_tex}
@@ -52,7 +55,7 @@ func commit_action(cel: Image, project: Project = ExtensionsApi.general.get_glob
 		for param in params:
 			preview.material.set_shader_parameter(param, params[param])
 	else:
-		var gen := ExtensionsApi.general.get_new_shader_image_effect()
+		var gen = api.general.get_new_shader_image_effect()
 		gen.generate_image(cel, shader, params, project.size)
 		await gen.done
 
